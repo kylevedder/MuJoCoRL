@@ -1,0 +1,48 @@
+# ~/.bashrc for interactive shells inside the container
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# Persistent, effectively infinite history
+export HISTFILE=/root/.bash_eternal_history
+touch "$HISTFILE"
+shopt -s histappend cmdhist histverify
+export HISTTIMEFORMAT='%F %T '
+export HISTCONTROL=ignoreboth:erasedups
+# Unlimited history (no truncation)
+export HISTSIZE=
+export HISTFILESIZE=
+
+# Sync history on every prompt (append new, read new from others)
+__bash_history_sync() {
+    builtin history -a
+    builtin history -n
+}
+if [[ -z "${PROMPT_COMMAND:-}" ]]; then
+    PROMPT_COMMAND="__bash_history_sync"
+else
+    PROMPT_COMMAND="__bash_history_sync; ${PROMPT_COMMAND}"
+fi
+
+# Enable color support for common tools
+if command -v dircolors >/dev/null 2>&1; then
+    eval "$(dircolors -b)"
+fi
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# Useful defaults
+set -o vi 2>/dev/null || true
+complete -r 2>/dev/null || true
+
+# Nice prompt
+if [[ "${TERM}" != dumb ]]; then
+    PS1='\[\e[1;31m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]$ '
+fi
+
+
