@@ -13,13 +13,17 @@ RUN python3 -m pip install --no-cache-dir uv==0.4.*
 
 # Option A: two-step install
 RUN python3 -m pip install --no-cache-dir torch==2.4.* --index-url https://download.pytorch.org/whl/cu124 
-RUN python3 -m pip install --no-cache-dir gymnasium[mujoco] gymnasium-robotics mujoco numpy tqdm matplotlib
+RUN python3 -m pip install --no-cache-dir \
+  "gymnasium>=1.2,<2" \
+  "mujoco>=3.0" \
+  "gymnasium-robotics>=1.4" \
+  numpy tqdm matplotlib
 
 
 # before: cd /opt/cleanrl && uv pip install .
 ENV UV_SYSTEM_PYTHON=1
 RUN git clone https://github.com/vwxyzjn/cleanrl.git /opt/cleanrl && \
-    cd /opt/cleanrl && uv pip install .
+    cd /opt/cleanrl && git checkout 004f8a0 && uv pip install --system --no-deps .
 
 RUN ln -s /usr/bin/python3 /usr/local/bin/python
 
